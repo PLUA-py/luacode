@@ -1,479 +1,247 @@
-local Players      = game:GetService("Players")
-local RunService   = game:GetService("RunService")
+--=# Anime Mobile Troll Samurai v2.1 #=--
+-- Optimized for Roblox mobile devices
+
+local Players = game:GetService("Players")
+local UserInput = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local UserInput    = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hum = character:WaitForChild("Humanoid")
 
-local LocalPlayer = Players.LocalPlayer
-local Camera      = workspace.CurrentCamera
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AnimeMobileUI"
+ScreenGui.Parent = player.PlayerGui
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name   = "C00lkiddPanel"
-screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0.4, 0, 0.1, 0) -- 40% width, 10% height
+MainFrame.Position = UDim2.new(0.55, 0, 0.02, 0) -- Top-right corner
+MainFrame.BackgroundTransparency = 0.7
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
 
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Name               = "MainFrame"
-mainFrame.Size               = UDim2.new(0, 360, 0, 500)
-mainFrame.Position           = UDim2.new(0.5, -180, 0.5, -250)
-mainFrame.BackgroundColor3   = Color3.fromRGB(20, 20, 20)
-mainFrame.BackgroundTransparency = 0.1
-mainFrame.BorderSizePixel    = 0
-mainFrame.Active             = true
-mainFrame.Draggable          = true
+-- Tab System
+local Tabs = {"Attack", "Troll"}
+local TabButtons = {}
 
-local topBar = Instance.new("Frame", mainFrame)
-topBar.Name             = "TopBar"
-topBar.Size             = UDim2.new(1, 0, 0, 30)
-topBar.Position         = UDim2.new(0, 0, 0, 0)
-topBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-topBar.BorderSizePixel  = 0
-
-local titleLabel = Instance.new("TextLabel", topBar)
-titleLabel.Size              = UDim2.new(0.6, 0, 1, 0)
-titleLabel.Position          = UDim2.new(0, 10, 0, 0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text              = "C00lkidd panel"
-titleLabel.TextColor3        = Color3.fromRGB(255, 255, 255)
-titleLabel.Font              = Enum.Font.GothamBold
-titleLabel.TextSize          = 16
-titleLabel.TextXAlignment    = Enum.TextXAlignment.Left
-
-local userLabel = Instance.new("TextLabel", topBar)
-userLabel.Size              = UDim2.new(0.4, -10, 1, 0)
-userLabel.Position          = UDim2.new(0.6, 10, 0, 0)
-userLabel.BackgroundTransparency = 1
-userLabel.Text              = "spongebybka"
-userLabel.TextColor3        = Color3.fromRGB(170, 170, 170)
-userLabel.Font              = Enum.Font.Gotham
-userLabel.TextSize          = 14
-userLabel.TextXAlignment    = Enum.TextXAlignment.Right
-
-local icon = Instance.new("ImageLabel", topBar)
-icon.Size              = UDim2.new(0, 20, 0, 20)
-icon.Position          = UDim2.new(0, 5, 0, 5)
-icon.BackgroundTransparency = 1
-icon.Image             = "file://storage/emulated/0/Delta/Workspace/2025060112261389.jpg"
-
-local btnMinimize = Instance.new("TextButton", topBar)
-btnMinimize.Size              = UDim2.new(0, 30, 0, 30)
-btnMinimize.Position          = UDim2.new(1, -70, 0, 0)
-btnMinimize.BackgroundTransparency = 0.2
-btnMinimize.BackgroundColor3  = Color3.fromRGB(40, 40, 40)
-btnMinimize.Text              = "–"
-btnMinimize.TextColor3        = Color3.fromRGB(255, 255, 255)
-btnMinimize.Font              = Enum.Font.Gotham
-btnMinimize.TextSize          = 20
-
-local btnClose = Instance.new("TextButton", topBar)
-btnClose.Size              = UDim2.new(0, 30, 0, 30)
-btnClose.Position          = UDim2.new(1, -35, 0, 0)
-btnClose.BackgroundTransparency = 0.2
-btnClose.BackgroundColor3  = Color3.fromRGB(40, 40, 40)
-btnClose.Text              = "✕"
-btnClose.TextColor3        = Color3.fromRGB(255, 100, 100)
-btnClose.Font              = Enum.Font.Gotham
-btnClose.TextSize          = 18
-
-local minimized = false
-btnMinimize.MouseButton1Click:Connect(function()
-    minimized = not minimized
-    for _, child in pairs(mainFrame:GetChildren()) do
-        if child ~= topBar then
-            child.Visible = not minimized
+for i, tabName in ipairs(Tabs) do
+    local TabButton = Instance.new("TextButton")
+    TabButton.Size = UDim2.new(0.49, 0, 0.3, 0) -- Wider tabs
+    TabButton.Position = UDim2.new(0.49 * (i-1), 0, 0, 0)
+    TabButton.Text = tabName
+    TabButton.TextColor3 = Color3.new(1, 1, 1)
+    TabButton.BackgroundColor3 = i == 1 and Color3.fromRGB(80, 20, 20) or Color3.fromRGB(40, 40, 60)
+    TabButton.BorderSizePixel = 0
+    TabButton.Font = Enum.Font.GothamBold
+    TabButton.TextSize = 16
+    TabButton.Parent = MainFrame
+    
+    TabButton.MouseButton1Click:Connect(function()
+        for _, btn in ipairs(TabButtons) do
+            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
         end
-    end
-    btnMinimize.Text = minimized and "+" or "–"
-end)
-btnClose.MouseButton1Click:Connect(function()
-    screenGui:Destroy()
-end)
-
-local tabsFrame = Instance.new("Frame", mainFrame)
-tabsFrame.Name              = "TabsFrame"
-tabsFrame.Size              = UDim2.new(0, 100, 1, -30)
-tabsFrame.Position          = UDim2.new(0, 0, 0, 30)
-tabsFrame.BackgroundColor3  = Color3.fromRGB(15, 15, 15)
-tabsFrame.BorderSizePixel   = 0
-
-local function createTabButton(text, positionY)
-    local btn = Instance.new("TextButton", tabsFrame)
-    btn.Size             = UDim2.new(1, -10, 0, 40)
-    btn.Position         = UDim2.new(0, 5, 0, positionY)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.Text             = text
-    btn.TextColor3       = Color3.fromRGB(200, 200, 200)
-    btn.Font             = Enum.Font.Gotham
-    btn.TextSize         = 14
-    return btn
-end
-
-local btnKill     = createTabButton("Kill", 0)
-local btnCT       = createTabButton("CT", 50)
-local btnTeleport = createTabButton("Teleport", 100)
-local btnFly      = createTabButton("Fly/NoClip", 150)
-local btnSpawn    = createTabButton("Spawn Weapon", 200)
-local btnCurrency = createTabButton("Currency", 250)
-
-local function createContentFrame()
-    local fr = Instance.new("Frame", mainFrame)
-    fr.Size             = UDim2.new(1, -100, 1, -30)
-    fr.Position         = UDim2.new(0, 100, 0, 30)
-    fr.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    fr.BorderSizePixel  = 0
-    fr.Visible          = false
-    return fr
-end
-
-local contentKill     = createContentFrame()
-local contentCT       = createContentFrame()
-local contentTeleport = createContentFrame()
-local contentFly      = createContentFrame()
-local contentSpawn    = createContentFrame()
-local contentCurrency = createContentFrame()
-
-local function showContent(frame)
-    for _, fr in pairs({contentKill, contentCT, contentTeleport, contentFly, contentSpawn, contentCurrency}) do
-        fr.Visible = (fr == frame)
-    end
-end
-
-btnKill.MouseButton1Click:Connect(function() showContent(contentKill) end)
-btnCT.MouseButton1Click:Connect(function() showContent(contentCT) end)
-btnTeleport.MouseButton1Click:Connect(function() showContent(contentTeleport) end)
-btnFly.MouseButton1Click:Connect(function() showContent(contentFly) end)
-btnSpawn.MouseButton1Click:Connect(function() showContent(contentSpawn) end)
-btnCurrency.MouseButton1Click:Connect(function() showContent(contentCurrency) end)
-
-showContent(contentKill)
-
-do
-    local lbl = Instance.new("TextLabel", contentKill)
-    lbl.Size              = UDim2.new(1, -20, 0, 20)
-    lbl.Position          = UDim2.new(0, 10, 0, 10)
-    lbl.BackgroundTransparency = 1
-    lbl.Text              = "Имя игрока для убийства:"
-    lbl.TextColor3        = Color3.fromRGB(255, 255, 255)
-    lbl.Font              = Enum.Font.Gotham
-    lbl.TextSize          = 14
-
-    local txtBox = Instance.new("TextBox", contentKill)
-    txtBox.Size              = UDim2.new(1, -20, 0, 30)
-    txtBox.Position          = UDim2.new(0, 10, 0, 40)
-    txtBox.PlaceholderText   = "Введите ник"
-    txtBox.TextColor3        = Color3.fromRGB(0, 0, 0)
-    txtBox.Font              = Enum.Font.Gotham
-    txtBox.TextSize          = 14
-
-    local btnExec = Instance.new("TextButton", contentKill)
-    btnExec.Size             = UDim2.new(1, -20, 0, 30)
-    btnExec.Position         = UDim2.new(0, 10, 0, 80)
-    btnExec.BackgroundColor3 = Color3.fromRGB(180, 30, 30)
-    btnExec.Text             = "Убить"
-    btnExec.TextColor3       = Color3.fromRGB(255, 255, 255)
-    btnExec.Font             = Enum.Font.Gotham
-    btnExec.TextSize         = 14
-
-    btnExec.MouseButton1Click:Connect(function()
-        local targetName = txtBox.Text
-        if targetName and targetName ~= "" then
-            for _, pl in pairs(Players:GetPlayers()) do
-                if pl.Name:lower() == targetName:lower() and pl.Character and pl.Character:FindFirstChildOfClass("Humanoid") then
-                    pl.Character:FindFirstChildOfClass("Humanoid"):TakeDamage(1e9)
-                    break
-                end
-            end
-        end
+        TabButton.BackgroundColor3 = Color3.fromRGB(80, 20, 20)
+        updateContent(tabName)
     end)
+    
+    table.insert(TabButtons, TabButton)
 end
 
-do
-    local btnTsunami = Instance.new("TextButton", contentCT)
-    btnTsunami.Size             = UDim2.new(1, -20, 0, 30)
-    btnTsunami.Position         = UDim2.new(0, 10, 0, 10)
-    btnTsunami.BackgroundColor3 = Color3.fromRGB(50, 50, 180)
-    btnTsunami.Text             = "Цунами"
-    btnTsunami.TextColor3       = Color3.fromRGB(255, 255, 255)
-    btnTsunami.Font             = Enum.Font.Gotham
-    btnTsunami.TextSize         = 14
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Size = UDim2.new(1, 0, 0.7, 0)
+ContentFrame.Position = UDim2.new(0, 0, 0.3, 0)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Parent = MainFrame
 
-    btnTsunami.MouseButton1Click:Connect(function()
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("BasePart") then
-                local keep = false
-                if obj:IsDescendantOf(LocalPlayer.Character) then
-                    keep = true
-                else
-                    local parentChar = obj:FindFirstAncestorWhichIsA("Model")
-                    if parentChar and parentChar.Name == "spongebybka" then
-                        keep = true
-                    end
-                end
-                if not keep then
-                    obj:Destroy()
-                end
-            end
-        end
-    end)
+-- Update UI
+function updateContent(tabName)
+    for _, child in ipairs(ContentFrame:GetChildren()) do
+        if child:IsA("GuiObject") then child:Destroy() end
+    end
+    
+    if tabName == "Attack" then
+        -- Attack Button
+        local AttackButton = Instance.new("TextButton")
+        AttackButton.Size = UDim2.new(0.45, 0, 0.9, 0)
+        AttackButton.Position = UDim2.new(0.025, 0, 0.05, 0)
+        AttackButton.Text = "⚔️ Attack"
+        AttackButton.TextColor3 = Color3.new(1, 1, 1)
+        AttackButton.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+        AttackButton.Font = Enum.Font.GothamBold
+        AttackButton.TextSize = 16
+        AttackButton.Parent = ContentFrame
+        
+        AttackButton.MouseButton1Click:Connect(animeAttack)
+        
+        -- Super Attack Button
+        local SuperButton = Instance.new("TextButton")
+        SuperButton.Size = UDim2.new(0.45, 0, 0.9, 0)
+        SuperButton.Position = UDim2.new(0.525, 0, 0.05, 0)
+        SuperButton.Text = "🔥 Super"
+        SuperButton.TextColor3 = Color3.new(1, 1, 1)
+        SuperButton.BackgroundColor3 = Color3.fromRGB(200, 100, 20)
+        SuperButton.Font = Enum.Font.GothamBold
+        SuperButton.TextSize = 16
+        SuperButton.Parent = ContentFrame
+        
+        SuperButton.MouseButton1Click:Connect(superAttack)
+        
+    elseif tabName == "Troll" then
+        -- Troll Button
+        local TrollButton = Instance.new("TextButton")
+        TrollButton.Size = UDim2.new(0.45, 0, 0.9, 0)
+        TrollButton.Position = UDim2.new(0.025, 0, 0.05, 0)
+        TrollButton.Text = "😂 Troll"
+        TrollButton.TextColor3 = Color3.new(1, 1, 1)
+        TrollButton.BackgroundColor3 = Color3.fromRGB(120, 30, 180)
+        TrollButton.Font = Enum.Font.GothamBold
+        TrollButton.TextSize = 16
+        TrollButton.Parent = ContentFrame
+        
+        TrollButton.MouseButton1Click:Connect(trollPlayer)
+        
+        -- Balloons Button
+        local BalloonButton = Instance.new("TextButton")
+        BalloonButton.Size = UDim2.new(0.45, 0, 0.9, 0)
+        BalloonButton.Position = UDim2.new(0.525, 0, 0.05, 0)
+        BalloonButton.Text = "🎈 Balloons"
+        BalloonButton.TextColor3 = Color3.new(1, 1, 1)
+        BalloonButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        BalloonButton.Font = Enum.Font.GothamBold
+        BalloonButton.TextSize = 16
+        BalloonButton.Parent = ContentFrame
+        
+        BalloonButton.MouseButton1Click:Connect(spawnBalloons)
+    end
+end
 
-    local btnFatality = Instance.new("TextButton", contentCT)
-    btnFatality.Size             = UDim2.new(1, -20, 0, 30)
-    btnFatality.Position         = UDim2.new(0, 10, 0, 50)
-    btnFatality.BackgroundColor3 = Color3.fromRGB(50, 180, 50)
-    btnFatality.Text             = "Фаталити"
-    btnFatality.TextColor3       = Color3.fromRGB(255, 255, 255)
-    btnFatality.Font             = Enum.Font.Gotham
-    btnFatality.TextSize         = 14
+-- Initialize first tab
+updateContent("Attack")
 
-    local lastKiller = nil
-    local function trackKiller(pl)
-        if pl.Character then
-            local hum = pl.Character:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.Died:Connect(function()
-                    local tag = hum:FindFirstChild("creator")
-                    if tag and tag.Value then
-                        lastKiller = tag.Value
-                    end
-                end)
+-- Visual Effects
+function createAnimeEffect(position, effectType)
+    local effects = {
+        slash = "rbxassetid://11388742277",
+        explosion = "rbxassetid://11854647839",
+        laugh = "rbxassetid://10907046825"
+    }
+    
+    local part = Instance.new("Part")
+    part.Anchored = true
+    part.CanCollide = false
+    part.Transparency = 1
+    part.Size = Vector3.new(5, 5, 5)
+    part.Position = position
+    part.Parent = workspace
+
+    local emote = Instance.new("Decal")
+    emote.Face = "Top"
+    emote.Texture = effects[effectType]
+    emote.Parent = part
+
+    game:GetService("Debris"):AddItem(part, 2)
+end
+
+-- Targeting System
+function getClosestPlayer()
+    local closest, dist = nil, math.huge
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local d = (p.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude
+            if d < dist then
+                closest = p
+                dist = d
             end
         end
     end
-    for _, pl in pairs(Players:GetPlayers()) do
-        trackKiller(pl)
-        pl.CharacterAdded:Connect(function(char) trackKiller(pl) end)
-    end
+    return closest
+end
 
-    btnFatality.MouseButton1Click:Connect(function()
-        local target = nil
-        if lastKiller and lastKiller.Character and lastKiller.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (LocalPlayer.Character.HumanoidRootPart.Position - lastKiller.Character.HumanoidRootPart.Position).Magnitude
-            if dist < 50 then
-                target = lastKiller
-            end
+-- Combat Functions
+function animeAttack()
+    local targetPlayer = getClosestPlayer()
+    if targetPlayer and targetPlayer.Character then
+        local target = targetPlayer.Character
+        createAnimeEffect(character.HumanoidRootPart.Position, "slash")
+        
+        TweenService:Create(
+            character.HumanoidRootPart,
+            TweenInfo.new(0.2, Enum.EasingStyle.Quad),
+            {CFrame = CFrame.new(target.HumanoidRootPart.Position)}
+        ):Play()
+        
+        task.wait(0.2)
+        createAnimeEffect(target.HumanoidRootPart.Position, "explosion")
+        target.Humanoid:TakeDamage(50)
+        target.HumanoidRootPart:ApplyImpulse(Vector3.new(0, 500, 0))
+    end
+end
+
+function superAttack()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character then
+            local target = p.Character
+            createAnimeEffect(target.HumanoidRootPart.Position, "explosion")
+            target.Humanoid:TakeDamage(30)
+            target.HumanoidRootPart:ApplyImpulse(
+                (target.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Unit * 100 + Vector3.new(0, 200, 0)
         end
-        if not target then
-            local mind, closest = math.huge, nil
-            for _, pl in pairs(Players:GetPlayers()) do
-                if pl ~= LocalPlayer and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
-                    local d = (LocalPlayer.Character.HumanoidRootPart.Position - pl.Character.HumanoidRootPart.Position).Magnitude
-                    if d < mind then
-                        mind, closest = d, pl
-                    end
-                end
-            end
-            target = closest
-        end
-        if target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") then
-            local katana = Instance.new("Part", workspace)
-            katana.Name         = "FatalityKatana"
-            katana.Size         = Vector3.new(1, 4, 0.2)
-            katana.CFrame       = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2) * CFrame.Angles(0, math.rad(180), 0)
-            katana.BrickColor   = BrickColor.new("Really black")
-            katana.Material     = Enum.Material.Metal
-            katana.Anchored     = true
-            local goal = target.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.5)
-            local tween = TweenService:Create(katana, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = goal})
+    end
+end
+
+-- Troll Functions
+function trollPlayer()
+    local targetPlayer = getClosestPlayer()
+    if targetPlayer and targetPlayer.Character then
+        local target = targetPlayer.Character
+        createAnimeEffect(target.HumanoidRootPart.Position, "laugh")
+        target.HumanoidRootPart.CFrame = target.HumanoidRootPart.CFrame * CFrame.new(0, 50, 0)
+    end
+end
+
+function spawnBalloons()
+    local targetPlayer = getClosestPlayer()
+    if targetPlayer and targetPlayer.Character then
+        local target = targetPlayer.Character
+        for i = 1, 10 do
+            local balloon = Instance.new("Part")
+            balloon.Size = Vector3.new(2, 3, 2)
+            balloon.BrickColor = BrickColor.Random()
+            balloon.Position = target.HumanoidRootPart.Position + Vector3.new(math.random(-5,5), 0, math.random(-5,5))
+            balloon.Parent = workspace
+            
+            local tween = TweenService:Create(
+                balloon,
+                TweenInfo.new(3),
+                {Position = balloon.Position + Vector3.new(0, 50, 0)}
+            )
             tween:Play()
-            task.delay(0.5, function()
-                target.Character:FindFirstChildOfClass("Humanoid"):TakeDamage(1e5)
-                katana:Destroy()
-            end)
+            game:GetService("Debris"):AddItem(balloon, 5)
         end
-    end)
-
-    local btnC00lkidd = Instance.new("TextButton", contentCT)
-    btnC00lkidd.Size             = UDim2.new(1, -20, 0, 30)
-    btnC00lkidd.Position         = UDim2.new(0, 10, 0, 90)
-    btnC00lkidd.BackgroundColor3 = Color3.fromRGB(200, 200, 50)
-    btnC00lkidd.Text             = "c00lkidd + Skin"
-    btnC00lkidd.TextColor3       = Color3.fromRGB(0, 0, 0)
-    btnC00lkidd.Font             = Enum.Font.Gotham
-    btnC00lkidd.TextSize         = 14
-
-    btnC00lkidd.MouseButton1Click:Connect(function()
-        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local head = char:FindFirstChild("Head")
-        if head then
-            local oldTag = head:FindFirstChild("CustomNameTag")
-            if oldTag then oldTag:Destroy() end
-            local billboard = Instance.new("BillboardGui", head)
-            billboard.Name          = "CustomNameTag"
-            billboard.Adornee       = head
-            billboard.AlwaysOnTop   = true
-            billboard.Size          = UDim2.new(0, 200, 0, 50)
-            billboard.StudsOffset   = Vector3.new(0, 2.5, 0)
-            local label = Instance.new("TextLabel", billboard)
-            label.Size              = UDim2.new(1, 0, 1, 0)
-            label.BackgroundTransparency = 1
-            label.Text              = "c00lkidd"
-            label.TextColor3        = Color3.fromRGB(0, 255, 255)
-            label.TextScaled        = true
-            label.Font              = Enum.Font.GothamBold
-        end
-        local success, desc = pcall(function()
-            return Players:GetHumanoidDescriptionFromUserId(LocalPlayer.UserId)
-        end)
-        if success and desc then
-            char:WaitForChild("Humanoid"):ApplyDescription(desc)
-        end
-    end)
-
-    local btnImmortal = Instance.new("TextButton", contentCT)
-    btnImmortal.Size             = UDim2.new(1, -20, 0, 30)
-    btnImmortal.Position         = UDim2.new(0, 10, 0, 130)
-    btnImmortal.BackgroundColor3 = Color3.fromRGB(50, 200, 200)
-    btnImmortal.Text             = "Enable Immortality"
-    btnImmortal.TextColor3       = Color3.fromRGB(0, 0, 0)
-    btnImmortal.Font             = Enum.Font.Gotham
-    btnImmortal.TextSize         = 14
-
-    btnImmortal.MouseButton1Click:Connect(function()
-        local function onCharAdded(char)
-            local hum = char:WaitForChild("Humanoid", 5)
-            if hum then
-                hum.HealthChanged:Connect(function(h)
-                    if h < hum.MaxHealth then
-                        hum.Health = hum.MaxHealth
-                    end
-                end)
-                hum.Died:Connect(function()
-                    task.wait(0.1)
-                    if char.Parent then
-                        hum.Health = hum.MaxHealth
-                    end
-                end)
-                hum.MaxHealth = hum.MaxHealth
-                hum.Health    = hum.MaxHealth
-            end
-        end
-        if LocalPlayer.Character then onCharAdded(LocalPlayer.Character) end
-        LocalPlayer.CharacterAdded:Connect(onCharAdded)
-    end)
+    end
 end
 
-do
-    local lbl = Instance.new("TextLabel", contentTeleport)
-    lbl.Size              = UDim2.new(1, -20, 0, 20)
-    lbl.Position          = UDim2.new(0, 10, 0, 10)
-    lbl.BackgroundTransparency = 1
-    lbl.Text              = "Включить Teleport:"
-    lbl.TextColor3        = Color3.fromRGB(255, 255, 255)
-    lbl.Font              = Enum.Font.Gotham
-    lbl.TextSize          = 14
+-- Anime Character Effects
+character.Archivable = true
+local animeChar = character:Clone()
+animeChar.Parent = workspace
 
-    local toggleLbl = Instance.new("TextLabel", contentTeleport)
-    toggleLbl.Size              = UDim2.new(1, -20, 0, 20)
-    toggleLbl.Position          = UDim2.new(0, 10, 0, 40)
-    toggleLbl.BackgroundTransparency = 1
-    toggleLbl.Text              = "Tele: Off"
-    toggleLbl.TextColor3        = Color3.fromRGB(200, 200, 200)
-    toggleLbl.Font              = Enum.Font.Gotham
-    toggleLbl.TextSize          = 14
-
-    local teleportEnabled = false
-    local btnToggle = Instance.new("TextButton", contentTeleport)
-    btnToggle.Size             = UDim2.new(1, -20, 0, 30)
-    btnToggle.Position         = UDim2.new(0, 10, 0, 70)
-    btnToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    btnToggle.Text             = "Toggle Teleport"
-    btnToggle.TextColor3       = Color3.fromRGB(255, 255, 255)
-    btnToggle.Font             = Enum.Font.Gotham
-    btnToggle.TextSize         = 14
-
-    btnToggle.MouseButton1Click:Connect(function()
-        teleportEnabled = not teleportEnabled
-        toggleLbl.Text = "Tele: " .. (teleportEnabled and "On" or "Off")
-        btnToggle.BackgroundColor3 = teleportEnabled and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(80, 80, 80)
-    end)
-
-    UserInput.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-        if teleportEnabled and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-            local unitRay = Camera:ScreenPointToRay(input.Position.X, input.Position.Y)
-            local ray = Ray.new(unitRay.Origin, unitRay.Direction * 999)
-            local _, hitPos = workspace:FindPartOnRay(ray, LocalPlayer.Character)
-            if hitPos and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(hitPos + Vector3.new(0, 3, 0))
-            end
-        end
-    end)
+for _, part in ipairs(animeChar:GetDescendants()) do
+    if part:IsA("BasePart") then
+        part.Transparency = 0.5
+        part.BrickColor = BrickColor.new("Hot pink")
+        part.Material = Enum.Material.Neon
+    end
 end
 
-do
-    local lbl = Instance.new("TextLabel", contentFly)
-    lbl.Size              = UDim2.new(1, -20, 0, 20)
-    lbl.Position          = UDim2.new(0, 10, 0, 10)
-    lbl.BackgroundTransparency = 1
-    lbl.Text              = "Fly/NoClip: Toggle (F)"
-    lbl.TextColor3        = Color3.fromRGB(255, 255, 255)
-    lbl.Font              = Enum.Font.Gotham
-    lbl.TextSize          = 14
+hum.Changed:Connect(function()
+    animeChar:SetPrimaryPartCFrame(character.PrimaryPart.CFrame)
+end)
 
-    local flying, noclip = false, false
-    local bv, gyro
-
-    local function startFly()
-        flying = true
-        noclip  = true
-        bv = Instance.new("BodyVelocity", LocalPlayer.Character.HumanoidRootPart)
-        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-        bv.P        = 1250
-        bv.Velocity = Vector3.new(0, 0, 0)
-        gyro = Instance.new("BodyGyro", LocalPlayer.Character.HumanoidRootPart)
-        gyro.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
-        gyro.P        = 5000
-        gyro.CFrame   = LocalPlayer.Character.HumanoidRootPart.CFrame
-
-        RunService.RenderStepped:Connect(function()
-            if flying then
-                gyro.CFrame = workspace.CurrentCamera.CFrame
-                local moveDir = Vector3.new(0, 0, 0)
-                if UserInput:IsKeyDown(Enum.KeyCode.W) then
-                    moveDir = moveDir + workspace.CurrentCamera.CFrame.LookVector
-                end
-                if UserInput:IsKeyDown(Enum.KeyCode.S) then
-                    moveDir = moveDir - workspace.CurrentCamera.CFrame.LookVector
-                end
-                if UserInput:IsKeyDown(Enum.KeyCode.A) then
-                    moveDir = moveDir - workspace.CurrentCamera.CFrame.RightVector
-                end
-                if UserInput:IsKeyDown(Enum.KeyCode.D) then
-                    moveDir = moveDir + workspace.CurrentCamera.CFrame.RightVector
-                end
-                if UserInput:IsKeyDown(Enum.KeyCode.Space) then
-                    moveDir = moveDir + workspace.CurrentCamera.CFrame.UpVector
-                end
-                if UserInput:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    moveDir = moveDir - workspace.CurrentCamera.CFrame.UpVector
-                end
-                bv.Velocity = moveDir.Unit * 100
-            end
-        end)
-
-        RunService.Stepped:Connect(function()
-            if noclip and LocalPlayer.Character then
-                for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end
-        end)
-    end
-
-    local function stopFly()
-        flying = false
-        noclip  = false
-        if bv   then bv:Destroy() end
-        if gyro then gyro:Destroy() end
-    end
-
-    UserInput.InputBegan:Connect(function(input, gp)
-        if gp then return end
-        if input.KeyCode == Enum.KeyCode.F then
-            if flying then
-                stopFly()
-            else
-                startFly()
-            end
-        end
-    end)
+-- Background Music
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://13827676125" -- Epic anime music
+sound.Looped = true
+sound.Parent = character.Head
+sound:Play()
